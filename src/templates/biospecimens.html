@@ -1,0 +1,175 @@
+{% include "header.html" %}
+
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                <h2 style="margin: 0; color: #f8fafc;">Biospecimen Records</h2>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSpecimenModal">
+                    <span class="glyphicon glyphicon-plus"></span> Add Specimen
+                </button>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Specimen ID</th>
+                        <th>Donor Name</th>
+                        <th>Sample Type</th>
+                        <th>Collection Date</th>
+                        <th>Initial Vol (mL)</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in biospecimens %}
+                    <tr>
+                        <td>{{ row.specimen_id }}</td>
+                        <td>{{ row.donor_name }}</td>
+                        <td>{{ row.type_name }}</td>
+                        <td>{{ row.collection_date }}</td>
+                        <td>{{ row.initial_volume_ml }} mL</td>
+                        <td>
+                            <span class="label {% if row.status == 'Available' %}label-success{% elif row.status == 'Depleted' %}label-warning{% else %}label-danger{% endif %}">
+                                {{ row.status }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-warning btn-xs" data-toggle="modal" data-target="#editSpecimenModal{{ row.specimen_id }}">Edit</button>
+                            <a href="/biospecimen/delete/{{ row.specimen_id }}" class="btn btn-danger btn-xs" onclick="return confirm('Delete this biospecimen record?')">Delete</a>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Specimen Modal -->
+                    <div id="editSpecimenModal{{ row.specimen_id }}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style="background-color: #0b132b; color: #f8fafc;">
+                                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <button type="button" class="close" data-dismiss="modal" style="color: #fff;">&times;</button>
+                                    <h4 class="modal-title">Edit Biospecimen #{{ row.specimen_id }}</h4>
+                                </div>
+                                <form action="{{ url_for('biospecimen_update') }}" method="POST">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="specimen_id" value="{{ row.specimen_id }}">
+                                        <div class="form-group">
+                                            <label>Donor</label>
+                                            <select name="donor_id" class="form-control" required>
+                                                {% for d in donors %}
+                                                <option value="{{ d.donor_id }}" {% if d.donor_id == row.donor_id %}selected{% endif %}>
+                                                    ID {{ d.donor_id }} - {{ d.full_name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Sample Type</label>
+                                            <select name="sample_type_id" class="form-control" required>
+                                                {% for st in sample_types %}
+                                                <option value="{{ st.sample_type_id }}" {% if st.sample_type_id == row.sample_type_id %}selected{% endif %}>
+                                                    {{ st.type_name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Collection Date</label>
+                                            <input type="date" class="form-control" name="collection_date" value="{{ row.collection_date }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Initial Volume (mL)</label>
+                                            <input type="number" step="0.01" class="form-control" name="initial_volume_ml" value="{{ row.initial_volume_ml }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                            <select name="status" class="form-control" required>
+                                                <option value="Available" {% if row.status == 'Available' %}selected{% endif %}>Available</option>
+                                                <option value="Depleted" {% if row.status == 'Depleted' %}selected{% endif %}>Depleted</option>
+                                                <option value="Discarded" {% if row.status == 'Discarded' %}selected{% endif %}>Discarded</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Specimen Modal -->
+<div id="addSpecimenModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #0b132b; color: #f8fafc;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="close" data-dismiss="modal" style="color: #fff;">&times;</button>
+                <h4 class="modal-title">Register Biospecimen</h4>
+            </div>
+            <form action="{{ url_for('biospecimen_insert') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Donor</label>
+                        <select name="donor_id" class="form-control" required>
+                            <option value="">Select Donor</option>
+                            {% for d in donors %}
+                            <option value="{{ d.donor_id }}">ID {{ d.donor_id }} - {{ d.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sample Type</label>
+                        <select name="sample_type_id" class="form-control" required>
+                            <option value="">Select Sample Type</option>
+                            {% for st in sample_types %}
+                            <option value="{{ st.sample_type_id }}">{{ st.type_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Collection Date</label>
+                        <input type="date" class="form-control" name="collection_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Volume (mL)</label>
+                        <input type="number" step="0.01" class="form-control" name="initial_volume_ml" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-control">
+                            <option value="Available">Available</option>
+                            <option value="Depleted">Depleted</option>
+                            <option value="Discarded">Discarded</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="submit" class="btn btn-primary">Save Specimen</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>

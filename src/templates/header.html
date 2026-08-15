@@ -1,0 +1,107 @@
+<style>
+  body {
+    background: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.25), transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.2), transparent 45%),
+                linear-gradient(135deg, #030712 0%, #0b132b 50%, #1c2541 100%) !important;
+    background-attachment: fixed !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #f1f5f9;
+    min-height: 100vh;
+  }
+
+  .navbar-custom {
+    background: rgba(11, 19, 43, 0.8) !important;
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    margin-top: 20px;
+    margin-bottom: 35px;
+    border-radius: 16px !important;
+    padding: 6px 20px;
+  }
+
+  .navbar-custom .navbar-brand {
+    color: #38bdf8 !important;
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .navbar-custom .nav > li > a {
+    color: #94a3b8 !important;
+    font-weight: 600;
+    font-size: 13px;
+    margin: 4px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+  }
+
+  .navbar-custom .nav > li > a:hover {
+    background: rgba(56, 189, 248, 0.1) !important;
+    color: #38bdf8 !important;
+  }
+
+  .navbar-custom .nav > li.active > a,
+  .navbar-custom .nav > li.active > a:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+  }
+
+  .container .row > div {
+    background: rgba(11, 19, 43, 0.85) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    margin-bottom: 40px;
+  }
+
+  .table { color: #cbd5e1 !important; }
+  .table > thead > tr > th {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    color: #38bdf8;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .table-striped > tbody > tr:nth-of-type(odd) { background-color: rgba(255, 255, 255, 0.02) !important; }
+  .table-striped > tbody > tr:nth-of-type(even) { background-color: rgba(0, 0, 0, 0.2) !important; }
+  .table > tbody > tr > td { border-top: 1px solid rgba(255, 255, 255, 0.05) !important; vertical-align: middle !important; }
+
+  .form-control {
+    background-color: #0b132b !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+    border-radius: 8px;
+  }
+  .form-control:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
+  }
+</style>
+
+<nav class="navbar navbar-default navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{{ url_for('donors') }}">
+        <span class="glyphicon glyphicon-tint"></span> Biobank DB
+      </a>
+    </div>
+
+    <ul class="nav navbar-nav">
+      <li class="{% if request.endpoint == 'donors' %}active{% endif %}">
+        <a href="{{ url_for('donors') }}"><span class="glyphicon glyphicon-user"></span> Donors</a>
+      </li>
+      <li class="{% if request.endpoint == 'biospecimens' %}active{% endif %}">
+        <a href="{{ url_for('biospecimens') }}"><span class="glyphicon glyphicon-filter"></span> Biospecimens</a>
+      </li>
+      <li class="{% if request.endpoint == 'storage' %}active{% endif %}">
+        <a href="{{ url_for('storage') }}"><span class="glyphicon glyphicon-inbox"></span> Storage Locations</a>
+      </li>
+    </ul>
+  </div>
+</nav>

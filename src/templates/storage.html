@@ -1,0 +1,131 @@
+{% include "header.html" %}
+
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                <h2 style="margin: 0; color: #f8fafc;">Storage Units</h2>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStorageModal">
+                    <span class="glyphicon glyphicon-plus"></span> Create Storage Location
+                </button>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Location ID</th>
+                        <th>Freezer Name</th>
+                        <th>Shelf #</th>
+                        <th>Box #</th>
+                        <th>Capacity</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in storage_locations %}
+                    <tr>
+                        <td>{{ row.location_id }}</td>
+                        <td>{{ row.freezer_name }}</td>
+                        <td>{{ row.shelf_number }}</td>
+                        <td>{{ row.box_number }}</td>
+                        <td>{{ row.capacity }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-warning btn-xs" data-toggle="modal" data-target="#editStorageModal{{ row.location_id }}">Edit</button>
+                            <a href="/storage/delete/{{ row.location_id }}" class="btn btn-danger btn-xs" onclick="return confirm('Remove storage location?')">Delete</a>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Storage Modal -->
+                    <div id="editStorageModal{{ row.location_id }}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style="background-color: #0b132b; color: #f8fafc;">
+                                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <button type="button" class="close" data-dismiss="modal" style="color: #fff;">&times;</button>
+                                    <h4 class="modal-title">Update Storage Location #{{ row.location_id }}</h4>
+                                </div>
+                                <form action="{{ url_for('storage_update') }}" method="POST">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="location_id" value="{{ row.location_id }}">
+                                        <div class="form-group">
+                                            <label>Freezer Name</label>
+                                            <input type="text" class="form-control" name="freezer_name" value="{{ row.freezer_name }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Shelf Number</label>
+                                            <input type="number" class="form-control" name="shelf_number" value="{{ row.shelf_number }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Box Number</label>
+                                            <input type="number" class="form-control" name="box_number" value="{{ row.box_number }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Capacity</label>
+                                            <input type="number" class="form-control" name="capacity" value="{{ row.capacity }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                                        <button type="submit" class="btn btn-primary">Update Location</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Storage Modal -->
+<div id="addStorageModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #0b132b; color: #f8fafc;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="close" data-dismiss="modal" style="color: #fff;">&times;</button>
+                <h4 class="modal-title">Create Storage Location</h4>
+            </div>
+            <form action="{{ url_for('storage_insert') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Freezer Name</label>
+                        <input type="text" class="form-control" name="freezer_name" placeholder="e.g. ULT-Freezer-A" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shelf Number</label>
+                        <input type="number" class="form-control" name="shelf_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Box Number</label>
+                        <input type="number" class="form-control" name="box_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Capacity</label>
+                        <input type="number" class="form-control" name="capacity" value="100" required>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="submit" class="btn btn-primary">Save Location</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
